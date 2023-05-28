@@ -87,13 +87,13 @@
           $serverName = "TRAN\MSSQLSERVER01"; //serverName\instanceName
           $connectionInfo = array("Database"=>"TestDB3", "UID"=>"", "PWD"=>"");
           $conn = sqlsrv_connect($serverName, $connectionInfo);
-      
+          echo "<option value=1>error option</option>";
           // Check for successful connection
           if ($conn) {
             echo "Connection established.<br />";
-          } else{
+          } else {
             echo "Connection could not be established.<br />";
-            die( print_r( sqlsrv_errors(), true));
+            die(print_r( sqlsrv_errors(), true));
           }
           
           // Get heatmap names and display names
@@ -107,7 +107,7 @@
 
           $x = 0;
           while ($obj = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-            echo '<option value='. $obj['heatmap'] .'>'.$obj['heatmapdisp'].'</option>';
+            echo '<option value='. $obj['heatmap'] .' href="heatmaps.php">'.$obj['heatmapdisp'].'</option>';
           }
           sqlsrv_free_stmt($stmt);
           sqlsrv_close($conn);

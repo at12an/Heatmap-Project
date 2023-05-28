@@ -149,34 +149,6 @@
 
             echo "</select><br>";
 
-            // // Dropdown select for all combinations of products 
-            // $query2 = "select * from dbo.data_products where Heading contains '_PROD'";
-            // $stmt2 = sqlsrv_query($conn, $query2);
-
-            // echo "<label for='baseproduct'>Select Base Products: </label>";
-            // echo "<select name='baseproduct' id='baseproduct'>";
-
-            // // Iterate over all the companies
-            // while ($obj = sqlsrv_fetch_array($stmt2, SQLSRV_FETCH_ASSOC)) {
-            //     // Get out each discount for a given companies
-            //     $company = $obj['Company'];
-            //     $query3 = "select * from dbo.data_products where Company = $company and Heading = 'Company_2'";
-            //     $stmt3 = sqlsrv_query($conn, $query3);
-            //     $companydisp = $obj['CompanyDisp'];
-            //     while ($obj2 = sqlsrv_fetch_array($stmt3, SQLSRV_FETCH_ASSOC)) {
-            //         for ($i = 0; true; $i++) {
-            //             $str = 'V_'.$i;
-            //             if (!isset($obj2[$str])) {
-            //                 break;
-            //             }
-            //             if ($obj2[$str] != null) {
-            //                 $disc = $obj2[$str];
-            //                 echo "<option value={'company':$company,'disc':$i>$companydisp $disc</option>";
-            //             }
-            //         }
-            //     }
-            // }
-
             echo "</select><br>";
 
             echo '<input type="submit" value="Enter Filters">';

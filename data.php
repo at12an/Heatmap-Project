@@ -79,8 +79,12 @@
                     $query = $query." and $filter = $value";
                 }
             }
+            $bcompany = $_POST['basecompany']['company'];
+            $bdisc = $_POST['basecompany']['disc'];
+            $query = $query." and (Company != $bcompany or Company_2 != $bdisc)";
 
-            $query = $query."order by Company_2 desc";
+
+            $query = $query." order by Company_2 desc";
 
             // echo $query;
             // echo '<br>';
@@ -106,6 +110,9 @@
                 echo $str.str_repeat(" ", $spaces);
             }
             echo '</pre>';
+
+            // Print All the Data 
+            // Print Data for Base Company First
             while ($obj = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
                 echo '<pre>';
                 $company = $obj['Company'];
@@ -147,9 +154,9 @@
                     echo $str.str_repeat(" ", $spaces);
                 }
                 // sqlsrv_free_stmt($tempstmt);
-                echo '</pre><br>';
+                echo '</pre>';
             }
-            echo '</pre><br>';
+            echo '</pre>';
             sqlsrv_free_stmt($stmt);
             sqlsrv_free_stmt($stmt2);
             // sqlsrv_free_stmt($stmt3);
