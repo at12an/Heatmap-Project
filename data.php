@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@100;200;300;400;500;600;700&display=swap" rel="stylesheet">
-    <title>Insurance Infographic</title>
+    <title>Heatmap Infographic</title>
     <style type="text/css">
         body {
             background-color: #F6F1F1;
@@ -38,7 +38,6 @@
             font-variant-numeric: tabular-nums;
             font-weight: 300;
             font-size: 1vw;
-            /* background-color: #F6F1F1; */
         }
 
         .title {
@@ -96,9 +95,9 @@
 
             $stmtalt = sqlsrv_query($conn, $queryalt);
 
-            echo $queryalt;
+            // echo $queryalt;
 
-            echo $query;
+            // echo $query;
 
             if ($stmt == false) {
                 echo "stmt false";

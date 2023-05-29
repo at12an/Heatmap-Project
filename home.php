@@ -81,7 +81,7 @@
       $(function() {
         $('#heatmap').change(function() {
           var heatmaps = $('#heatmap').val();
-          var url = 'test.php';
+          var url = 'home.php';
           var form = $('<form action="' + url + '" method="post">' +
             '<input type="hidden" name="heatmap" value=' + heatmaps + ' />' +
             '</form>');
@@ -91,149 +91,78 @@
         });
       });
     </script>
-    <h1>Insurance Infographic</h1>
+    <h1>Heatmap Infographic</h1>
     <h2>Heatmaps</h2>
 
     <form method="POST" action="data.php" id="form1">
       <label for="heatmap">Select Heatmap:</label>
-      <!-- <br> -->
       <select name="heatmap" id="heatmap" action="filter.php" >
-        <?php
+      <?php
 
-          // Connect to SQL database
-          $serverName = "TRAN\MSSQLSERVER01"; //serverName\instanceName
-          $connectionInfo = array("Database"=>"TestDB3", "UID"=>"", "PWD"=>"");
-          $conn = sqlsrv_connect($serverName, $connectionInfo);
-          // Check for successful connection
-          if ($conn) {
-            echo "Connection established.<br />";
-          } else {
-            echo "Connection could not be established.<br />";
-            die(print_r( sqlsrv_errors(), true));
-          }
-          
-          // Get heatmap names and display names
-          $query = "select heatmap, heatmapdisp from dbo.heatmap_opts";
-          $stmt = sqlsrv_query($conn, $query);
+        // Connect to SQL database
+        $serverName = "TRAN\MSSQLSERVER01"; //serverName\instanceName
+        $connectionInfo = array("Database"=>"TestDB3", "UID"=>"", "PWD"=>"");
+        $conn = sqlsrv_connect($serverName, $connectionInfo);
 
-          // Check if query was successful
-          if ($stmt == false) {
-            echo "stmt false";
-          }
+        // Check for successful connection
+        if ($conn) {
+          echo "Connection established.<br />";
+        } else {
+          echo "Connection could not be established.<br />";
+          die(print_r( sqlsrv_errors(), true));
+        }
+        
+        // Get heatmap names and display names
+        $query = "select heatmap, heatmapdisp from dbo.heatmap_opts";
+        $stmt = sqlsrv_query($conn, $query);
 
-          echo "<option value=-1>Select Heatmap Options</option>";
-          $x = 0;
-          while ($obj = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-            echo '<option value='. $obj['heatmap'] .'>'.$obj['heatmapdisp'].'</option>';
-          }
-          sqlsrv_free_stmt($stmt);
-          sqlsrv_close($conn);
-              
-          ?>
+        // Check if query was successful
+        if ($stmt == false) {
+          echo "stmt false";
+        }
+
+        // Base option display REPLACE THIS FEATURE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        echo "<option value=-1>Select Heatmap Options</option>";
+
+        // Iterate through heatmaps and display as options
+        $x = 0;
+        while ($obj = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+          echo '<option value='. $obj['heatmap'] .'>'.$obj['heatmapdisp'].'</option>';
+        }
+
+        // Free all data
+        sqlsrv_free_stmt($stmt);
+        sqlsrv_close($conn);
+            
+      ?>
+
       </select>
 
       <br>
 
       <?php
-          if (isset($_POST['heatmap'])) { 
-            // Connect to SQL Database
-            $serverName = "TRAN\MSSQLSERVER01"; //serverName\instanceName
-            $connectionInfo = array("Database"=>"TestDB3", "UID"=>"", "PWD"=>"");
-            $conn = sqlsrv_connect($serverName, $connectionInfo);
-
-            // Check if connection successful
-            if (!$conn) {
-                echo "Connection could not be established.<br />";
-                die( print_r( sqlsrv_errors(), true));
-            }
-
-            // Re-POST the month and heatmap values for next page
-            // echo '<input type="hidden" name="month" value='.$_POST['month'].'>';
-            echo '<input type="hidden" name="heatmap" value='.$_POST['heatmap'].'>';
-
-            // Initialise info to organise respective filters for a given heatmap
-            $heatmap = $_POST["heatmap"];
-            $query = "select * from dbo.heatmap_filters where HeatMap = '" .$heatmap."' order by LevelDisp, LevelOrd ASC";
-            $stmt = sqlsrv_query($conn, $query);
-
-            // Query error check
-            if ($stmt == false) {
-                echo "stmt false";
-            }
-            
-            // Iterate through tuples from query, and generate a dropdown select for each
-            while ($obj = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-                echo '<label for='.$obj["Filters"].'>Select '.$obj["FiltersDisp"].': </label>';
-                echo '<select name='.$obj["Filters"].' id='.$obj["Filters"].'>';
-                for ($i = 0; true; $i++) {
-                    $str = 'V_'.$i;
-                    if (!isset($obj[$str])) {
-                        break;
-                    }
-                    if ($obj[$str] != null) {
-                        echo '<option value='.$i.'>'.$obj[$str].'</option>';
-                    }
-                }
-                echo'</select><br>';
-            }
-
-            // Dropdown select for all companies + discount combinations
-            $query2 = "select * from dbo.data_company";
-            $stmt2 = sqlsrv_query($conn, $query2);
-
-            echo "<label for='basecompany'>Select Base Company: </label>";
-            echo "<select name='basecompany' id='basecompany'>";
-
-            // Iterate over all the companies
-            while ($obj = sqlsrv_fetch_array($stmt2, SQLSRV_FETCH_ASSOC)) {
-                // Get out each discount for a given companies
-                $company = $obj['Company'];
-                $query3 = "select * from dbo.data_products where Company = $company and Heading = 'Company_2'";
-                $stmt3 = sqlsrv_query($conn, $query3);
-                $companydisp = $obj['CompanyDisp'];
-                while ($obj2 = sqlsrv_fetch_array($stmt3, SQLSRV_FETCH_ASSOC)) {
-                    for ($i = 0; true; $i++) {
-                        $str = 'V_'.$i;
-                        if (!isset($obj2[$str])) {
-                            break;
-                        }
-                        if ($obj2[$str] != null) {
-                            $disc = $obj2[$str];
-                            echo "<option value='$company,$i'>$companydisp $disc</option>";
-                        }
-                    }
-                }
-            }
-
-            echo "</select>";
-
-            echo "</select>";
-            sqlsrv_free_stmt($stmt);
-            sqlsrv_close($conn);
-          }
-
-
-        ?>
-
-      <br>  
-      
-      <label for="month">Select Month:</label>
-      <!-- <br> -->
-      <select name="month" id="month">
-        <?php
+        if (isset($_POST['heatmap'])) { 
+          // Connect to SQL Database
           $serverName = "TRAN\MSSQLSERVER01"; //serverName\instanceName
           $connectionInfo = array("Database"=>"TestDB3", "UID"=>"", "PWD"=>"");
           $conn = sqlsrv_connect($serverName, $connectionInfo);
-      
-          if ($conn) {
-            echo "Connection established.<br />";
-          } else{
-            echo "Connection could not be established.<br />";
-            die( print_r( sqlsrv_errors(), true));
+
+          // Check if connection successful
+          if (!$conn) {
+              echo "Connection could not be established.<br />";
+              die( print_r( sqlsrv_errors(), true));
           }
-          
-          $query = "select distinct month from dbo.bundledv2";
-          
+
+          // Re-POST the heatmap values for next page
+          echo '<input type="hidden" name="heatmap" value='.$_POST['heatmap'].'>';
+
+          // Initialise info to organise respective filters for a given heatmap
+          $heatmap = $_POST["heatmap"];
+
+          // Add Month dropdown select
+          echo '<label for="month">Select Month: </label><select name="month" id="month">';
+          $query = "select distinct month from dbo.$heatmap";
+        
           $stmt = sqlsrv_query($conn, $query);
 
           if ($stmt == false) {
@@ -242,25 +171,92 @@
 
           $x = 0;
 
-
+          // Iterate through all distinct months within corresponding heatmap database
           while ($obj = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-            // $newOption = $_POST[$obj['heatmapdisp']];  
             echo '<option value='. $obj['month']->format('Y-m-d') .'>'.$obj['month']->format('Y-m-d').'</option>';
           }
+
+          echo '</select><br>';
+
+          // Querying for heatmap filters
+          $query = "select * from dbo.heatmap_filters where HeatMap = '" .$heatmap."' order by LevelDisp, LevelOrd ASC";
+          $stmt = sqlsrv_query($conn, $query);
+
+          // Query error check
+          if ($stmt == false) {
+              echo "stmt false";
+          }
+          
+          // Iterate through each filter of heatmap
+          // Add each filter as dropdown select
+          // Iterate through V_i, and add a dropdown select option
+          while ($obj = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+              echo '<label for='.$obj["Filters"].'>Select '.$obj["FiltersDisp"].': </label>';
+              echo '<select name='.$obj["Filters"].' id='.$obj["Filters"].'>';
+              for ($i = 0; true; $i++) {
+                  $str = 'V_'.$i;
+                  if (!isset($obj[$str])) {
+                      break;
+                  }
+                  if ($obj[$str] != null) {
+                      echo '<option value='.$i.'>'.$obj[$str].'</option>';
+                  }
+              }
+              echo'</select><br>';
+          }
+
+          // Dropdown select for all companies + discount combinations
+          $query2 = "select * from dbo.data_company";
+          $stmt2 = sqlsrv_query($conn, $query2);
+
+          if ($stmt2 == false) {
+            echo "stmt2 false";
+          }
+
+          echo "<label for='basecompany'>Select Base Company: </label>";
+          echo "<select name='basecompany' id='basecompany'>";
+
+          // Company + Discount dropdown select
+          // Iterate over all the companies
+          while ($obj = sqlsrv_fetch_array($stmt2, SQLSRV_FETCH_ASSOC)) {
+              // Iterate over each discount corresponding to each company
+              $company = $obj['Company'];
+              $query3 = "select * from dbo.data_products where Company = $company and Heading = 'Company_2'";
+              $stmt3 = sqlsrv_query($conn, $query3);
+              if ($stmt3 == false) {
+                echo "stmt3 false";
+              }
+              $companydisp = $obj['CompanyDisp'];
+              // Add combination of company + discount as dropdown option select
+              while ($obj2 = sqlsrv_fetch_array($stmt3, SQLSRV_FETCH_ASSOC)) {
+                  for ($i = 0; true; $i++) {
+                      $str = 'V_'.$i;
+                      if (!isset($obj2[$str])) {
+                          break;
+                      }
+                      if ($obj2[$str] != null) {
+                          $disc = $obj2[$str];
+                          echo "<option value='$company,$i'>$companydisp $disc</option>";
+                      }
+                  }
+              }
+          }
+
+          echo "</select>";
+          
+          // Free data
           sqlsrv_free_stmt($stmt);
+          sqlsrv_free_stmt($stmt2);
+          sqlsrv_free_stmt($stmt3);
           sqlsrv_close($conn);
-          // Check if a new option needs to be added
-          // if (isset($_POST['newOption'])) {
-          //   $newOption = $_POST['newOption'];
-          //   echo '<option value="' . $newOption . '">' . $newOption . '</option>';
-          // }
-              
-          ?>
-      </select>
+          }
+        ?>
+
       <br>
+
       <input type="submit" value="Select Heatmap">
     </form>
 
   </body>
-
+  
 </html
