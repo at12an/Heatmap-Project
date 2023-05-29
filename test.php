@@ -199,7 +199,7 @@
                         }
                         if ($obj2[$str] != null) {
                             $disc = $obj2[$str];
-                            echo "<option value={'company':$company,'disc':$i>$companydisp $disc</option>";
+                            echo "<option value='$company,$i'>$companydisp $disc</option>";
                         }
                     }
                 }

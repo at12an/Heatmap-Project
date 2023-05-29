@@ -62,6 +62,7 @@
             }
 
             // echo ''.$_POST['month'].'';
+            // echo $_POST['month'];
             $datetime = $_POST['month'];
             // echo $datetime;
             $heatmap = $_POST['heatmap'];
@@ -79,22 +80,28 @@
                     $query = $query." and $filter = $value";
                 }
             }
-            $bcompany = $_POST['basecompany']['company'];
-            $bdisc = $_POST['basecompany']['disc'];
+            $bcompany = $_POST['basecompany'][0];
+            $bdisc = $_POST['basecompany'][2];
+            // echo $bcompany;
+            // echo $bdisc;
+            $queryalt = $query." and Company = $bcompany and Company_2 = $bdisc";
             $query = $query." and (Company != $bcompany or Company_2 != $bdisc)";
 
 
             $query = $query." order by Company_2 desc";
 
-            // echo $query;
-            // echo '<br>';
-            // $query = "select * from dbo.heatmap_filters where HeatMap = ' .$heatmap."' order by LevelDisp, LevelOrd ASC";
-            // // $query = "select * from dbo.Friends where FirstName = "
+            $queryalt = $queryalt." order by Company_2 desc";
 
             $stmt = sqlsrv_query($conn, $query);
 
+            $stmtalt = sqlsrv_query($conn, $queryalt);
+
+            echo $queryalt;
+
+            echo $query;
+
             if ($stmt == false) {
-            echo "stmt false";
+                echo "stmt false";
             }
             // Print table headings
             // Query to get out table headings 
@@ -111,9 +118,8 @@
             }
             echo '</pre>';
 
-            // Print All the Data 
-            // Print Data for Base Company First
-            while ($obj = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+            // Print All the Data for Base Company + Disc First
+            while ($obj = sqlsrv_fetch_array($stmtalt, SQLSRV_FETCH_ASSOC)) {
                 echo '<pre>';
                 $company = $obj['Company'];
                 $tempquery = "select distinct CompanyDisp from dbo.data_company where Company = $company";
@@ -157,10 +163,53 @@
                 echo '</pre>';
             }
             echo '</pre>';
+
+            // Then print it for rest of data (excluding Base Company and Disc)
+            while ($obj = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+                echo '<pre>';
+                $company = $obj['Company'];
+                $tempquery = "select distinct CompanyDisp from dbo.data_company where Company = $company";
+                $tempstmt = sqlsrv_query($conn, $tempquery);
+                $tempobj = sqlsrv_fetch_array($tempstmt, SQLSRV_FETCH_ASSOC)['CompanyDisp'];
+                $desired_length = 30;
+                $length = strlen($tempobj);
+                $spaces = $desired_length - $length;
+                echo $tempobj.str_repeat(" ", $spaces);
+                // Get company number and print company name
+                $tempquery = "select Head from dbo.data_OutputDisp where ConvertData = 1 and Head != '$fill' and $heatmap = 1 order by DispOrder asc";
+                $tempstmt = sqlsrv_query($conn, $tempquery);
+                while ($obj2 = sqlsrv_fetch_array($tempstmt, SQLSRV_FETCH_ASSOC)) {
+                    $company = $obj['Company'];
+                    $heading = $obj2['Head'];
+                    $tempquery2 = "select * from dbo.data_products where Company = $company and Heading = '$heading'";
+                    $tempstmt2 = sqlsrv_query($conn, $tempquery2);
+                    $tempindex = "V_".$obj[$heading];
+                    $tempobj = sqlsrv_fetch_array($tempstmt2, SQLSRV_FETCH_ASSOC);
+                    if ($tempobj != null) {
+                        $str = $tempobj[$tempindex];
+                    } else {
+                        $str = '';
+                    }
+                    $desired_length = 30;
+                    $length = strlen($str);
+                    $spaces = $desired_length - $length;
+                    echo $str.str_repeat(" ", $spaces);
+                }
+                $tempquery = "select Head from dbo.data_OutputDisp where ConvertData = 0 and Head != '$fill' and $heatmap = 1 order by DispOrder asc";
+                $tempstmt = sqlsrv_query($conn, $tempquery);
+
+                while ($obj2 = sqlsrv_fetch_array($tempstmt, SQLSRV_FETCH_ASSOC)) {
+                    $str = $obj[$obj2['Head']];
+                    $desired_length = 30;
+                    $length = strlen($str);
+                    $spaces = $desired_length - $length;
+                    echo $str.str_repeat(" ", $spaces);
+                }
+                echo '</pre>';
+            }
+            echo '</pre>';
             sqlsrv_free_stmt($stmt);
             sqlsrv_free_stmt($stmt2);
-            // sqlsrv_free_stmt($stmt3);
-            // sqlsrv_free_stmt($stmt4);
             sqlsrv_close($conn);
 
 
