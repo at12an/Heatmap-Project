@@ -81,16 +81,21 @@
       $(function() {
         $('#heatmap').change(function() {
           var heatmaps = $('#heatmap').val();
+          sessionStorage.setItem("heatmap", heatmaps);
           var url = 'home.php';
           var form = $('<form action="' + url + '" method="post">' +
             '<input type="hidden" name="heatmap" value=' + heatmaps + ' />' +
             '</form>');
           $('body').append(form);
           form.submit();
-          $('#heatmap').val(heatmaps).change;
         });
       });
-    </script>
+      window.onload = function() {
+        var heatmaps = sessionStorage.getItem("heatmap");
+        $('#heatmap').val(heatmaps).change; 
+        $('#sort-item').val(selItem);
+      }
+      </script>
     <h1>Heatmap Infographic</h1>
     <h2>Heatmaps</h2>
 
@@ -121,9 +126,6 @@
           echo "stmt false";
         }
 
-        // Base option display REPLACE THIS FEATURE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        echo "<option value=-1>Select Heatmap Options</option>";
-
         // Iterate through heatmaps and display as options
         $x = 0;
         while ($obj = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
@@ -141,7 +143,6 @@
       <br>
 
       <?php
-        if (isset($_POST['heatmap'])) { 
           // Connect to SQL Database
           $serverName = "TRAN\MSSQLSERVER01"; //serverName\instanceName
           $connectionInfo = array("Database"=>"TestDB3", "UID"=>"", "PWD"=>"");
@@ -153,11 +154,21 @@
               die( print_r( sqlsrv_errors(), true));
           }
 
-          // Re-POST the heatmap values for next page
-          echo '<input type="hidden" name="heatmap" value='.$_POST['heatmap'].'>';
-
           // Initialise info to organise respective filters for a given heatmap
-          $heatmap = $_POST["heatmap"];
+          if (isset($_POST['heatmap'])) {
+            $heatmap = $_POST["heatmap"];
+          } else {
+            $query = "select heatmap, heatmapdisp from dbo.heatmap_opts";
+            $stmt = sqlsrv_query($conn, $query);
+            if ($stmt == false) {
+              echo "stmt false";
+            }
+            $obj = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC);
+            $heatmap = $obj['heatmap'];
+          }
+
+          // Re-POST the heatmap values for next page
+          echo '<input type="hidden" name="heatmap" value='.$heatmap.'>';
 
           // Add Month dropdown select
           echo '<label for="month">Select Month: </label><select name="month" id="month">';
@@ -249,7 +260,7 @@
           sqlsrv_free_stmt($stmt2);
           sqlsrv_free_stmt($stmt3);
           sqlsrv_close($conn);
-          }
+          
         ?>
 
       <br>
