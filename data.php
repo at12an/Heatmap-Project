@@ -109,6 +109,7 @@
             $tempstmt = sqlsrv_query($conn, $tempquery);
             echo "<pre class='title'>";
             while ($obj = sqlsrv_fetch_array($tempstmt, SQLSRV_FETCH_ASSOC)) {
+                // Print each heading with 30 max characters
                 $desired_length = 30;
                 $str = $obj['HeadDisp'];
                 $length = strlen($str);
@@ -119,35 +120,43 @@
 
             // Print All the Data for Base Company + Disc First
             while ($obj = sqlsrv_fetch_array($stmtalt, SQLSRV_FETCH_ASSOC)) {
-                echo '<pre>';
+                echo '<pre>'; 
+                // Get company number and print company name
+                // This is done seperately because the Company name exists in a different table to the other filter info
                 $company = $obj['Company'];
                 $tempquery = "select distinct CompanyDisp from dbo.data_company where Company = $company";
                 $tempstmt = sqlsrv_query($conn, $tempquery);
                 $tempobj = sqlsrv_fetch_array($tempstmt, SQLSRV_FETCH_ASSOC)['CompanyDisp'];
+                // Print company with 30 max characters
                 $desired_length = 30;
                 $length = strlen($tempobj);
                 $spaces = $desired_length - $length;
                 echo $tempobj.str_repeat(" ", $spaces);
-                // Get company number and print company name
+
+                // Query to get all the column values that require conversion then convert and display them.
                 $tempquery = "select Head from dbo.data_OutputDisp where ConvertData = 1 and Head != '$fill' and $heatmap = 1 order by DispOrder asc";
                 $tempstmt = sqlsrv_query($conn, $tempquery);
                 while ($obj2 = sqlsrv_fetch_array($tempstmt, SQLSRV_FETCH_ASSOC)) {
                     $company = $obj['Company'];
                     $heading = $obj2['Head'];
+                    // Get value column value
                     $tempquery2 = "select * from dbo.data_products where Company = $company and Heading = '$heading'";
                     $tempstmt2 = sqlsrv_query($conn, $tempquery2);
                     $tempindex = "V_".$obj[$heading];
+                    // Query to convert the column value
                     $tempobj = sqlsrv_fetch_array($tempstmt2, SQLSRV_FETCH_ASSOC);
                     if ($tempobj != null) {
                         $str = $tempobj[$tempindex];
                     } else {
                         $str = '';
                     }
+                    // Print out converted data with 30 max characters
                     $desired_length = 30;
                     $length = strlen($str);
                     $spaces = $desired_length - $length;
                     echo $str.str_repeat(" ", $spaces);
                 }
+                // Query to get all the column values that dont need conversion (mostly AGENB) and then display them
                 $tempquery = "select Head from dbo.data_OutputDisp where ConvertData = 0 and Head != '$fill' and $heatmap = 1 order by DispOrder asc";
                 $tempstmt = sqlsrv_query($conn, $tempquery);
 
@@ -158,13 +167,15 @@
                     $spaces = $desired_length - $length;
                     echo $str.str_repeat(" ", $spaces);
                 }
-                // sqlsrv_free_stmt($tempstmt);
                 echo '</pre>';
             }
             echo '</pre>';
 
+            // This is exact process done above, just applied to the rest of the tuples of the first processed query
             // Then print it for rest of data (excluding Base Company and Disc)
             while ($obj = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+                // Get company number and print company name
+                // This is done seperately because the Company name exists in a different table to the other filter info
                 echo '<pre>';
                 $company = $obj['Company'];
                 $tempquery = "select distinct CompanyDisp from dbo.data_company where Company = $company";
@@ -174,7 +185,7 @@
                 $length = strlen($tempobj);
                 $spaces = $desired_length - $length;
                 echo $tempobj.str_repeat(" ", $spaces);
-                // Get company number and print company name
+                // Query to get all the column values that require conversion then convert and display them.
                 $tempquery = "select Head from dbo.data_OutputDisp where ConvertData = 1 and Head != '$fill' and $heatmap = 1 order by DispOrder asc";
                 $tempstmt = sqlsrv_query($conn, $tempquery);
                 while ($obj2 = sqlsrv_fetch_array($tempstmt, SQLSRV_FETCH_ASSOC)) {
@@ -196,7 +207,7 @@
                 }
                 $tempquery = "select Head from dbo.data_OutputDisp where ConvertData = 0 and Head != '$fill' and $heatmap = 1 order by DispOrder asc";
                 $tempstmt = sqlsrv_query($conn, $tempquery);
-
+                // Query to get all the column values that dont need conversion (mostly AGENB) and then display them
                 while ($obj2 = sqlsrv_fetch_array($tempstmt, SQLSRV_FETCH_ASSOC)) {
                     $str = $obj[$obj2['Head']];
                     $desired_length = 30;
