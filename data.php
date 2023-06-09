@@ -140,7 +140,7 @@
         $tempquery = "select HeadDisp from dbo.data_OutputDisp where $heatmap = 1 order by DispOrder asc";
         $tempstmt = sqlsrv_query($conn, $tempquery);
         // echo "<pre class='title'>";
-        echo '<tr>';
+        echo '<tr><th></th>';
         while ($obj = sqlsrv_fetch_array($tempstmt, SQLSRV_FETCH_ASSOC)) {
             // Print each heading with 30 max characters
             // $desired_length = 30;
@@ -157,6 +157,7 @@
         while ($obj = sqlsrv_fetch_array($stmtalt, SQLSRV_FETCH_ASSOC)) {
             // echo '<pre>'; 
             echo '<tr>';
+            echo '<td><input type="checkbox" id="checkbox1" name="checkbox1"></td>';
             // Get company number and print company name
             // This is done seperately because the Company name exists in a different table to the other filter info
             $company = $obj['Company'];
@@ -216,6 +217,7 @@
         while ($obj = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
             // echo '<pre>'; 
             echo '<tr>';
+            echo '<td><input type="checkbox" id="checkbox1" name="checkbox1"></td>';
             // Get company number and print company name
             // This is done seperately because the Company name exists in a different table to the other filter info
             $company = $obj['Company'];
