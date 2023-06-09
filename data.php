@@ -97,7 +97,7 @@
         // echo $datetime;
         $heatmap = $_POST['heatmap'];
         // BASE QUERY TO BUILD ON
-        $query = "Select Company, Company_2, CompanyProd, D_TPD_PROD, TPDTYPE, TPDBB, D_TRAU_PROD, TRAUBB, TRAUREIN, IP_PROD, AGENB_21, AGENB_22, AGENB_23, AGENB_24, AGENB_25, AGENB_26, AGENB_27, AGENB_28, AGENB_29, AGENB_30, AGENB_31, AGENB_32, AGENB_33, AGENB_34, AGENB_35, AGENB_36, AGENB_37, AGENB_38, AGENB_39, AGENB_40, AGENB_41, AGENB_42, AGENB_43, AGENB_44, AGENB_45, AGENB_46, AGENB_47, AGENB_48, AGENB_49, AGENB_50, AGENB_51, AGENB_52, AGENB_53, AGENB_54, AGENB_55, AGENB_56, AGENB_57, AGENB_58, AGENB_59, AGENB_60, AGENB_61, AGENB_62, AGENB_63, AGENB_64 from dbo.$heatmap where month = '$datetime'"; 
+        $query = "Select * from dbo.$heatmap where month = '$datetime'"; 
 
         // QUERY TO GET ALL POSTED FILTER INPUTS
         $query2 = "select Filters from dbo.heatmap_filters where HeatMap = '".$heatmap."'order by LevelDisp, LevelOrd ASC";
@@ -106,21 +106,21 @@
             // Build query
             $filter = $obj['Filters'];
             $value = $_POST[trim($filter)];
-            if (strpos($filter, 'sex') !== true) {
+            // if (strpos($filter, 'sex') !== true) {
                 $query = $query." and $filter = $value";
-            }
+            // }
         }
         $bcompany = $_POST['basecompany'][0];
         $bdisc = $_POST['basecompany'][2];
         // echo $bcompany;
         // echo $bdisc;
-        $queryalt = $query." and Company = $bcompany and Company_2 = $bdisc";
-        $query = $query." and (Company != $bcompany or Company_2 != $bdisc)";
+        $queryalt = $query." and company = $bcompany and company_2 = $bdisc";
+        $query = $query." and (company != $bcompany or company_2 != $bdisc)";
 
 
-        $query = $query." order by Company_2 desc";
+        $query = $query." order by company_2 desc";
 
-        $queryalt = $queryalt." order by Company_2 desc";
+        $queryalt = $queryalt." order by company_2 desc";
 
         $stmt = sqlsrv_query($conn, $query);
 
@@ -132,6 +132,7 @@
 
         if ($stmt == false) {
             echo "stmt false";
+            echo "<br>$query";
         }
         // Print table headings
         // Query to get out table headings 
@@ -160,7 +161,7 @@
             echo '<td><input type="checkbox" id="checkbox1" name="checkbox1"></td>';
             // Get company number and print company name
             // This is done seperately because the Company name exists in a different table to the other filter info
-            $company = $obj['Company'];
+            $company = $obj['company'];
             $tempquery = "select distinct CompanyDisp from dbo.data_company where Company = $company";
             $tempstmt = sqlsrv_query($conn, $tempquery);
             $tempobj = sqlsrv_fetch_array($tempstmt, SQLSRV_FETCH_ASSOC)['CompanyDisp'];
@@ -175,7 +176,7 @@
             $tempquery = "select Head from dbo.data_OutputDisp where ConvertData = 1 and Head != '$fill' and $heatmap = 1 order by DispOrder asc";
             $tempstmt = sqlsrv_query($conn, $tempquery);
             while ($obj2 = sqlsrv_fetch_array($tempstmt, SQLSRV_FETCH_ASSOC)) {
-                $company = $obj['Company'];
+                $company = $obj['company'];
                 $heading = $obj2['Head'];
                 // Get value column value
                 $tempquery2 = "select * from dbo.data_products where Company = $company and Heading = '$heading'";
@@ -220,7 +221,7 @@
             echo '<td><input type="checkbox" id="checkbox1" name="checkbox1"></td>';
             // Get company number and print company name
             // This is done seperately because the Company name exists in a different table to the other filter info
-            $company = $obj['Company'];
+            $company = $obj['company'];
             $tempquery = "select distinct CompanyDisp from dbo.data_company where Company = $company";
             $tempstmt = sqlsrv_query($conn, $tempquery);
             $tempobj = sqlsrv_fetch_array($tempstmt, SQLSRV_FETCH_ASSOC)['CompanyDisp'];
@@ -235,18 +236,21 @@
             $tempquery = "select Head from dbo.data_OutputDisp where ConvertData = 1 and Head != '$fill' and $heatmap = 1 order by DispOrder asc";
             $tempstmt = sqlsrv_query($conn, $tempquery);
             while ($obj2 = sqlsrv_fetch_array($tempstmt, SQLSRV_FETCH_ASSOC)) {
-                $company = $obj['Company'];
+                $company = $obj['company'];
                 $heading = $obj2['Head'];
                 // Get value column value
-                $tempquery2 = "select * from dbo.data_products where Company = $company and Heading = '$heading'";
+                $tempquery2 = "select * from dbo.data_products where company = $company and Heading = '$heading'";
                 $tempstmt2 = sqlsrv_query($conn, $tempquery2);
                 $tempindex = "V_".$obj[$heading];
+                // echo $company;
+                // echo $tempindex;
+                // echo "<br>";
+                // echo "$tempindex<br>";
                 // Query to convert the column value
                 $tempobj = sqlsrv_fetch_array($tempstmt2, SQLSRV_FETCH_ASSOC);
+                // $str = '';
                 if ($tempobj != null) {
                     $str = $tempobj[$tempindex];
-                } else {
-                    $str = '';
                 }
                 // Print out converted data with 30 max characters
                 // $desired_length = 30;
