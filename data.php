@@ -55,6 +55,35 @@
             font-weight: bold;
             color: #146C94;
         }
+        /* Table */
+            table {
+            width: 100%;
+            border-collapse: collapse;
+            }
+
+            /* Table header */
+            thead {
+            background-color: #f2f2f2;
+            }
+
+            th, td {
+            padding: 8px;
+            text-align: left;
+            }
+
+            th {
+            font-weight: bold;
+            }
+
+            /* Alternating row colors */
+            tbody tr:nth-child(even) {
+            /* background-color: #f9f9f9; */
+            }
+
+            /* Hover effect */
+            tbody tr:hover {
+            background-color: #e6e6e6;
+            }
     </style>
     <!--Title of the tab -->
     <title>SQL TEST</title>
@@ -90,6 +119,18 @@
             downloadLink.click();
         }
     }
+        function copyTableData() {
+        var table = document.getElementById('tabledata');
+        var range = document.createRange(3);
+        range.selectNodeContents(table);
+
+        var selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+
+        document.execCommand('copy');
+        alert('Table data copied to clipboard!');
+        }
     </script>
     </head>
 
@@ -103,7 +144,7 @@
     <?php
         // Connect to the data base
         $serverName = "TRAN\MSSQLSERVER01"; 
-        $connectionInfo = array("Database"=>"TestDB3", "UID"=>"", "PWD"=>"");
+        $connectionInfo = array("Database"=>"heatmaps_Jun23", "UID"=>"", "PWD"=>"");
         $conn = sqlsrv_connect($serverName, $connectionInfo);
 
         // Check if connection was successful
@@ -115,14 +156,21 @@
         // Get POST values from the form -> Gets out the month and heatmap selected from the form
         $datetime = $_POST['month'];
         $heatmap = $_POST['heatmap'];
+        // echo $heatmap;
 
         // Using these POST values to create the base query
         // This query selects the heatmap table for the given date time
         $query = "Select * from dbo.$heatmap where month = '$datetime'"; 
 
         // Query2 to get all the filters out and then add to base query
-        $query2 = "select Filters from dbo.heatmap_filters where HeatMap = '".$heatmap."'order by LevelDisp, LevelOrd ASC";
+        $query2 = "select Filters from dbo.heatmap_filters where HeatMap = '".$heatmap."' order by LevelDisp, LevelOrd ASC";
+        // echo $query2;
+        // echo "<br>";
         $stmt2 = sqlsrv_query($conn, $query2);
+        if ($stmt2 == false) {
+            echo "stmt0 false";
+        }
+        
         // While loops goes through each row in the query2 table
         // With each row -> it takes the filter name + posted values from the form it adds to the query
         // E.g. it will add "sex = 1" or "BENPERIOD = 1" to the base query
@@ -139,22 +187,24 @@
         $bdisc = $_POST['basecompany'][2];
 
         // Queryalt is the query but specifically only for the base company + discount
-        $queryalt = $query." and company = $bcompany and company_2 = $bdisc";
+        $queryalt = $query." and company_id = $bcompany and Product_id = $bdisc";
 
         // Remove the base company + discount from the original query so it doesnt print twice
-        $query = $query." and (company != $bcompany or company_2 != $bdisc)";
+        $query = $query." and (company_id != $bcompany or Product_id != $bdisc)";
 
         // Correct the ordering of each query
-        $query = $query." order by company_2 desc";
-        $queryalt = $queryalt." order by company_2 desc";
+        $query = $query." order by company_id asc";
+        $queryalt = $queryalt." order by company_id asc";
 
         // Run the queries
         $stmt = sqlsrv_query($conn, $query);
         $stmtalt = sqlsrv_query($conn, $queryalt);
 
+        // echo $query;
+        // echo "<br>";
         // Check if queries where run successfully
         if ($stmt == false) {
-            echo "stmt false";
+            echo "stmt1 false";
         }
         
         if ($stmtalt == false) {
@@ -177,7 +227,7 @@
 
         // Check successful
         if ($tempstmt == false) {
-            echo "tempstmt false";
+            echo "tempstmt0 false";
         }
         // Create the first row
         echo '<tr>';
@@ -195,89 +245,89 @@
         // While loop goes through each row in query alt
         // Query alt goes through the data from the heatmap table for the base company + discount
         // It will go through each row and add the respective data corresponding to each output display heading as table data
-        while ($obj = sqlsrv_fetch_array($stmtalt, SQLSRV_FETCH_ASSOC)) {
-            // Create new row in html table
-            echo '<tr>';
-            // First row entry is a checkbox 
-            // Add checkbox into html 
-            echo '<td><input type="checkbox" id="checkbox1" name="checkbox1"></td>';
-            // Get company number and print company name
-            // This is done seperately because the Company name exists in a different table to the other filter info
-            // Get Company value from the row
-            $company = $obj['company'];
-            // Create query in company table
-            $tempquery = "select distinct CompanyDisp from dbo.data_company where Company = $company";
-            // Run the query
-            $tempstmt = sqlsrv_query($conn, $tempquery);
-            // Error check
-            if ($tempstmt == false) {
-                echo "tempstmt false";
-            }
-            // Take out the company display name from the first row of the query (the query will only have one row)
-            $tempobj = sqlsrv_fetch_array($tempstmt, SQLSRV_FETCH_ASSOC)['CompanyDisp'];
-            // Add the company name as table entry
-            echo "<td>$tempobj</td>";
+        // while ($obj = sqlsrv_fetch_array($stmtalt, SQLSRV_FETCH_ASSOC)) {
+        //     // Create new row in html table
+        //     echo '<tr>';
+        //     // First row entry is a checkbox 
+        //     // Add checkbox into html 
+        //     echo '<td><input type="checkbox" id="checkbox1" name="checkbox1"></td>';
+        //     // Get company number and print company name
+        //     // This is done seperately because the Company name exists in a different table to the other filter info
+        //     // Get Company value from the row
+        //     $company = $obj['company'];
+        //     // Create query in company table
+        //     $tempquery = "select distinct CompanyDisp from dbo.data_company where Company = $company";
+        //     // Run the query
+        //     $tempstmt = sqlsrv_query($conn, $tempquery);
+        //     // Error check
+        //     if ($tempstmt == false) {
+        //         echo "tempstmt1 false";
+        //     }
+        //     // Take out the company display name from the first row of the query (the query will only have one row)
+        //     $tempobj = sqlsrv_fetch_array($tempstmt, SQLSRV_FETCH_ASSOC)['CompanyDisp'];
+        //     // Add the company name as table entry
+        //     echo "<td>$tempobj</td>";
 
-            // Query to get all the column values that require conversion then convert and display them.
-            $tempquery = "select Head from dbo.data_OutputDisp where ConvertData = 1 and Head != '$fill' and $heatmap = 1 order by DispOrder asc";
-            // Run the query
-            $tempstmt = sqlsrv_query($conn, $tempquery);
-            // Error check
-            if ($tempstmt == false) {
-                echo "tempstmt false";
-            }
+        //     // Query to get all the column values that require conversion then convert and display them.
+        //     $tempquery = "select Head from dbo.data_OutputDisp where ConvertData = 1 and Head != '$fill' and $heatmap = 1 order by DispOrder asc";
+        //     // Run the query
+        //     $tempstmt = sqlsrv_query($conn, $tempquery);
+        //     // Error check
+        //     if ($tempstmt == false) {
+        //         echo "tempstmt2 false";
+        //     }
 
-            // While loop goes through each row in the Output display table
-            while ($obj2 = sqlsrv_fetch_array($tempstmt, SQLSRV_FETCH_ASSOC)) {
-                // Gets company number
-                $company = $obj['company'];
-                // Gets heading of the current row
-                $heading = $obj2['Head'];
-                // Query to get the out values that will correspond to V_n for each heading
-                $tempquery2 = "select * from dbo.data_products where Company = $company and Heading = '$heading'";
-                // Run query
-                $tempstmt2 = sqlsrv_query($conn, $tempquery2);
-                if ($tempstmt2 == false) {
-                    echo "tempstmt2 false";
-                }
-                // Take from current row of heatmap table the value of heading e.g. value of sex in the current row is 1
-                // So V_1 string is created
-                $tempindex = "V_".$obj[$heading];
-                // Query to convert the column value
-                // Using the V_n made, it will take the V_n column for the associated heading
-                // E.g V_1 of sex (heading) will be male
-                $tempobj = sqlsrv_fetch_array($tempstmt2, SQLSRV_FETCH_ASSOC);
-                if ($tempobj != null) {
-                    // If tempobj exists add to string
-                    $str = $tempobj[$tempindex];
-                } else {
-                    // Else leave string as empty
-                    $str = '';
-                }
-                // Add string as row entry
-                echo "<td>$str</td>";
-            }
-            // Query to get all the column values that dont need conversion (mostly AGENB) and then display them
-            $tempquery = "select Head from dbo.data_OutputDisp where ConvertData = 0 and Head != '$fill' and $heatmap = 1 order by DispOrder asc";
-            // Run query
-            $tempstmt = sqlsrv_query($conn, $tempquery);
+        //     // While loop goes through each row in the Output display table
+        //     while ($obj2 = sqlsrv_fetch_array($tempstmt, SQLSRV_FETCH_ASSOC)) {
+        //         // Gets company number
+        //         $company = $obj['company'];
+        //         // Gets heading of the current row
+        //         $heading = $obj2['Head'];
+        //         // Query to get the out values that will correspond to V_n for each heading
+        //         $tempquery2 = "select * from dbo.data_products where Company = $company and Heading = '$heading'";
+        //         // Run query
+        //         $tempstmt2 = sqlsrv_query($conn, $tempquery2);
+        //         if ($tempstmt2 == false) {
+        //             echo "tempstmt3 false";
+        //         }
+        //         // Take from current row of heatmap table the value of heading e.g. value of sex in the current row is 1
+        //         // So V_1 string is created
+        //         $tempindex = "V_".$obj[$heading];
+        //         // Query to convert the column value
+        //         // Using the V_n made, it will take the V_n column for the associated heading
+        //         // E.g V_1 of sex (heading) will be male
+        //         $tempobj = sqlsrv_fetch_array($tempstmt2, SQLSRV_FETCH_ASSOC);
+        //         if ($tempobj != null) {
+        //             // If tempobj exists add to string
+        //             $str = $tempobj[$tempindex];
+        //         } else {
+        //             // Else leave string as empty
+        //             $str = '';
+        //         }
+        //         // Add string as row entry
+        //         echo "<td>$str</td>";
+        //     }
+        //     // Query to get all the column values that dont need conversion (mostly AGENB) and then display them
+        //     $tempquery = "select Head from dbo.data_OutputDisp where ConvertData = 0 and Head != '$fill' and $heatmap = 1 order by DispOrder asc";
+        //     // Run query
+        //     $tempstmt = sqlsrv_query($conn, $tempquery);
 
-            // Error check
-            if ($tempstmt == false) {
-                echo "tempstmt false";
-            }
+        //     // Error check
+        //     if ($tempstmt == false) {
+        //         echo "tempstmt4 false";
+        //     }
 
-            // For loop goes through each row out OutputDisp and gets name of heading
-            while ($obj2 = sqlsrv_fetch_array($tempstmt, SQLSRV_FETCH_ASSOC)) {
-                // Uses name of heading to get value out of the current row in the heatmap table
-                // E.G. AGENB1 is a heading, use AGENB1 to get out the value of AGENB1 in the current tuple of the heatmap table
-                $str = $obj[$obj2['Head']];
-                // Add value as row entry
-                echo "<td>$str</td>";
-            }
-            // Closing tag for row
-            echo '</tr>';
-        }
+        //     // For loop goes through each row out OutputDisp and gets name of heading
+        //     while ($obj2 = sqlsrv_fetch_array($tempstmt, SQLSRV_FETCH_ASSOC)) {
+        //         // Uses name of heading to get value out of the current row in the heatmap table
+        //         // E.G. AGENB1 is a heading, use AGENB1 to get out the value of AGENB1 in the current tuple of the heatmap table
+        //         $str = $obj[$obj2['Head']];
+        //         // Add value as row entry
+        //         echo "<td>$str</td>";
+        //     }
+        //     // Closing tag for row
+        //     echo '</tr>';
+        // }
 
         // This is exact process done above, just applied to the rest of the tuples of the first processed query
         // Then print it for rest of data (excluding Base Company and Disc)
@@ -290,14 +340,15 @@
             // Get company number and print company name
             // This is done seperately because the Company name exists in a different table to the other filter info
             // Get Company value from the row
-            $company = $obj['company'];
+            $company = $obj['company_id'];
             // Create query in company table
-            $tempquery = "select distinct CompanyDisp from dbo.data_company where Company = $company";
+            $tempquery = "select distinct CompanyDisp from dbo.data_company where Company_id = $company";
             // Run the query
             $tempstmt = sqlsrv_query($conn, $tempquery);
+            // echo $tempquery;
             // Error check
             if ($tempstmt == false) {
-                echo "tempstmt false";
+                echo "tempstmt6 false";
             }
             // Take out the company display name from the first row of the query (the query will only have one row)
             $tempobj = sqlsrv_fetch_array($tempstmt, SQLSRV_FETCH_ASSOC)['CompanyDisp'];
@@ -310,38 +361,59 @@
             $tempstmt = sqlsrv_query($conn, $tempquery);
             // Error check
             if ($tempstmt == false) {
-                echo "tempstmt false";
+                echo "tempstmt5 false";
             }
-
+            $sub_id = $obj['companysub_id'];
+            $prod_id = $obj['Product_id'];
             // While loop goes through each row in the Output display table
             while ($obj2 = sqlsrv_fetch_array($tempstmt, SQLSRV_FETCH_ASSOC)) {
                 // Gets company number
-                $company = $obj['company'];
+                $company = $obj['company_id'];
                 // Gets heading of the current row
                 $heading = $obj2['Head'];
                 // Query to get the out values that will correspond to V_n for each heading
-                $tempquery2 = "select * from dbo.data_products where Company = $company and Heading = '$heading'";
+                // $tempquery2 = "select * from dbo.data_products where Company_id = $company and product";
                 // Run query
-                $tempstmt2 = sqlsrv_query($conn, $tempquery2);
-                if ($tempstmt2 == false) {
-                    echo "tempstmt2 false";
+                // $tempstmt2 = sqlsrv_query($conn, $tempquery2);
+                // if ($tempstmt2 == false) {
+                //     echo "tempstmt2 false";
+                // }
+                if (str_contains($heading, "companysub_id")) {
+                    $tempquery2 = "select * from dbo.data_CompanySub where Company_id = $company and CompanySub_id = $sub_id";
+                    $tempstmt2 = sqlsrv_query($conn, $tempquery2);
+                    if ($tempstmt2 == false) {
+                        echo "tempstmt2 false";
+                    }
+                    $tempobjp = sqlsrv_fetch_array($tempstmt2, SQLSRV_FETCH_ASSOC);
+                    $str = $tempobjp['CompanySub_disp'];
+                    echo "<td>$str</td>";
+                }
+                if (str_contains($heading, "Product_id")) {
+                    $tempquery2 = "select * from dbo.data_products where Company_id = $company and Product_id = $prod_id";
+                    $tempstmt2 = sqlsrv_query($conn, $tempquery2);
+                    if ($tempstmt2 == false) {
+                        echo "tempstmt22 false";
+                    }
+                    $tempobjp = sqlsrv_fetch_array($tempstmt2, SQLSRV_FETCH_ASSOC);
+                    $str = $tempobjp['Product_Disp'];
+                    echo "<td>$str</td>";
                 }
                 // Take from current row of heatmap table the value of heading e.g. value of sex in the current row is 1
                 // So V_1 string is created
-                $tempindex = "V_".$obj[$heading];
-                // Query to convert the column value
-                // Using the V_n made, it will take the V_n column for the associated heading
-                // E.g V_1 of sex (heading) will be male
-                $tempobj = sqlsrv_fetch_array($tempstmt2, SQLSRV_FETCH_ASSOC);
-                if ($tempobj != null) {
-                    // If tempobj exists add to string
-                    $str = $tempobj[$tempindex];
-                } else {
-                    // Else leave string as empty
-                    $str = '';
-                }
-                // Add string as row entry
-                echo "<td>$str</td>";
+                // $tempindex = "V_".$obj[$heading];
+                // // Query to convert the column value
+                // // Using the V_n made, it will take the V_n column for the associated heading
+                // // E.g V_1 of sex (heading) will be male
+                // $tempobj = sqlsrv_fetch_array($tempstmt2, SQLSRV_FETCH_ASSOC);
+                // if ($tempobj != null) {
+                //     // If tempobj exists add to string
+                //     $str = $tempobj[$tempindex];
+                // } else {
+                //     // Else leave string as empty
+                //     $str = '';
+                // }
+                // // Add string as row entry
+                // echo "<td>$str</td>";
             }
             // Query to get all the column values that dont need conversion (mostly AGENB) and then display them
             $tempquery = "select Head from dbo.data_OutputDisp where ConvertData = 0 and Head != '$fill' and $heatmap = 1 order by DispOrder asc";
@@ -350,7 +422,7 @@
 
             // Error check
             if ($tempstmt == false) {
-                echo "tempstmt false";
+                echo "tempstmt9 false";
             }
 
             // For loop goes through each row out OutputDisp and gets name of heading
@@ -376,6 +448,7 @@
     <div>
         <!--Button to cause script event that causes excel download-->
         <button onclick="exportTableToExcel('tabledata')">Export Table Data To Excel File</button>
+        <button onclick="copyTableData()">Copy to Clipboard</button>
     </div>
   </body>
 </html

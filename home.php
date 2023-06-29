@@ -117,7 +117,7 @@
 
         // Connect to SQL database
         $serverName = "TRAN\MSSQLSERVER01"; //serverName\instanceName
-        $connectionInfo = array("Database"=>"TestDB3", "UID"=>"", "PWD"=>"");
+        $connectionInfo = array("Database"=>"heatmaps_Jun23", "UID"=>"", "PWD"=>"");
         $conn = sqlsrv_connect($serverName, $connectionInfo);
 
         // Check for successful connection
@@ -156,7 +156,7 @@
       <?php
           // Connect to SQL Database
           $serverName = "TRAN\MSSQLSERVER01"; //serverName\instanceName
-          $connectionInfo = array("Database"=>"TestDB3", "UID"=>"", "PWD"=>"");
+          $connectionInfo = array("Database"=>"heatmaps_Jun23 ", "UID"=>"", "PWD"=>"");
           $conn = sqlsrv_connect($serverName, $connectionInfo);
 
           // Check if connection successful
@@ -237,12 +237,12 @@
           }
 
           // Dropdown select for all companies + discount combinations
-          $query2 = "select * from dbo.data_company";
-          $stmt2 = sqlsrv_query($conn, $query2);
+          // $query2 = "select * from dbo.data_company";
+          // $stmt2 = sqlsrv_query($conn, $query2);
 
-          if ($stmt2 == false) {
-            echo "stmt2 false";
-          }
+          // if ($stmt2 == false) {
+          //   echo "stmt2 false";
+          // }
 
           // Dropdown select for base company + discount
           echo "<label for='basecompany'>Select Base Company: </label>";
@@ -250,33 +250,68 @@
 
           // Company + Discount dropdown select
           // Iterate over all the companies
-          while ($obj = sqlsrv_fetch_array($stmt2, SQLSRV_FETCH_ASSOC)) {
-              // Iterate over each discount corresponding to each company
-              $company = $obj['Company'];
-              // Query to get all discounts out
-              $query3 = "select * from dbo.data_products where Company = $company and Heading = 'Company_2'";
-              $stmt3 = sqlsrv_query($conn, $query3);
-              if ($stmt3 == false) {
-                echo "stmt3 false";
+          // while ($obj = sqlsrv_fetch_array($stmt2, SQLSRV_FETCH_ASSOC)) {
+          //     // Iterate over each discount corresponding to each company
+          //     // echo "<option>1</option";
+          //     $company = $obj['Company_id'];
+          //     // Query to get all discounts out
+
+
+              // $query3 = "select * from dbo.data_products where Company_id = $bcompany";
+              // $stmt3 = sqlsrv_query($conn, $query3);
+              // if ($stmt3 == false) {
+              //   echo "stmt3 false";
+              // }
+              // // Get out Company Display name
+              // $companydisp = $obj['CompanyDisp'];
+
+              $query4 = "select distinct company_id, Product_id from dbo.$heatmap order by company_id";
+              $stmt4 = sqlsrv_query($conn, $query4);
+              if ($stmt4 == false) {
+                echo "stmt4 false";
               }
-              // Get out Company Display name
-              $companydisp = $obj['CompanyDisp'];
-              // Add combination of company + discount as dropdown option select
-              while ($obj2 = sqlsrv_fetch_array($stmt3, SQLSRV_FETCH_ASSOC)) {
-                // Go through each V_n for discount
-                for ($i = 0; true; $i++) {
-                  $str = 'V_'.$i;
-                  if (!isset($obj2[$str])) {
-                      break;
-                  }
-                  if ($obj2[$str] != null) {
-                      $disc = $obj2[$str];
-                      // Add discount + company name as option to dropdown select
-                      echo "<option value='$company,$i'>$companydisp $disc</option>";
-                  }
+              while ($obj4 = sqlsrv_fetch_array($stmt4, SQLSRV_FETCH_ASSOC)) {
+                $prod_id = $obj4['Product_id'];
+                $bcompany = $obj4['company_id'];
+                $query3 = "select * from dbo.data_products where Company_id = $bcompany and Product_id = $prod_id";
+                $stmt3 = sqlsrv_query($conn, $query3);
+                  if ($stmt3 == false) {
+                  echo "stmt3 false";
                 }
+                $obj3 = sqlsrv_fetch_array($stmt3, SQLSRV_FETCH_ASSOC);
+                $prod = $obj3['Product_Disp'];
+                $query2 = "select * from dbo.data_company where Company_id = $bcompany";
+                $stmt2 = sqlsrv_query($conn, $query2);
+                if ($stmt2 == false) {
+                  echo "stmt2 false";
+                }
+                $obj2 = sqlsrv_fetch_array($stmt2, SQLSRV_FETCH_ASSOC);
+                $bcompanyDisp = $obj2['CompanyDisp'];
+
+                echo "<option value='$bcompany,$prod_id'>$bcompanyDisp $prod</option>";
+                
               }
-          }
+
+              // // Add combination of company + discount as dropdown option select
+              // while ($obj2 = sqlsrv_fetch_array($stmt3, SQLSRV_FETCH_ASSOC)) {
+              //   // // Go through each V_n for discount
+              //   // for ($i = 0; true; $i++) {
+              //   //   $str = 'V_'.$i;
+              //   //   if (!isset($obj2[$str])) {
+              //   //       break;
+              //   //   }
+              //   //   if ($obj2[$str] != null) {
+              //   //       $disc = $obj2[$str];
+              //   //       // Add discount + company name as option to dropdown select
+              //   //       echo "<option value='$company,$i'>$companydisp $disc</option>";
+              //   //   }
+              //   // }
+              //   // echo "<option>1</option";
+              //   $prod = $obj2['Product_Disp'];
+              //   $prod_id = $obj2['Product_id'];
+              //   echo "<option value='$company,$prod_id'>$companydisp $prod</option>";
+              // }
+          // }
           // Closing tag
           echo "</select>";
           
@@ -284,6 +319,7 @@
           sqlsrv_free_stmt($stmt);
           sqlsrv_free_stmt($stmt2);
           sqlsrv_free_stmt($stmt3);
+          sqlsrv_free_stmt($stmt4);
           sqlsrv_close($conn);
           
         ?>
