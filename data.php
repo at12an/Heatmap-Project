@@ -55,35 +55,34 @@
             font-weight: bold;
             color: #146C94;
         }
-        /* Table */
-            table {
-            width: 100%;
-            border-collapse: collapse;
-            }
+        table {
+            background-color: #AFD3E2;
+            text-align: center;
+            font-family: 'Roboto Mono', monospace;
+        width: 100%;
+        border-collapse: collapse;
+        }
 
-            /* Table header */
-            thead {
-            background-color: #f2f2f2;
-            }
-
-            th, td {
+        th,
+        td {
+            text-align: center;
+            font-family: 'Roboto Mono', monospace;
             padding: 8px;
-            text-align: left;
-            }
+            border-bottom: 1px solid #ddd;
+        }
 
-            th {
+        th {
+            background-color: #146C94;
             font-weight: bold;
-            }
+        }
 
-            /* Alternating row colors */
-            tbody tr:nth-child(even) {
+        tr:nth-child(even) {
             /* background-color: #f9f9f9; */
-            }
+        }
 
-            /* Hover effect */
-            tbody tr:hover {
-            background-color: #e6e6e6;
-            }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
     </style>
     <!--Title of the tab -->
     <title>SQL TEST</title>
@@ -357,15 +356,25 @@
                echo "tempstmt9 false";
            }
 
-           // For loop goes through each row out OutputDisp and gets name of heading
-           while ($obj2 = sqlsrv_fetch_array($tempstmt, SQLSRV_FETCH_ASSOC)) {
-               // Uses name of heading to get value out of the current row in the heatmap table
-               // E.G. AGENB1 is a heading, use AGENB1 to get out the value of AGENB1 in the current tuple of the heatmap table
-               $str = $obj[$obj2['Head']];
-               // Add value as row entry
-               echo "<td>$str</td>";
-           }
-           // Closing tag for row
+          // For loop goes through each row out OutputDisp and gets name of heading
+          while ($obj2 = sqlsrv_fetch_array($tempstmt, SQLSRV_FETCH_ASSOC)) {
+            // Uses name of heading to get value out of the current row in the heatmap table
+            // E.G. AGENB1 is a heading, use AGENB1 to get out the value of AGENB1 in the current tuple of the heatmap table
+            $str = $obj[$obj2['Head']];
+            // Add value as row entry\
+            if (is_numeric( $str )) {
+                $val = (float)$str;
+                round($val,2);
+                $val = "$".$val;
+                echo "<td>$val</td>";
+                // $str = "$".$str;
+                // rtrim($str, "0");
+            } else {
+            // $str = "$".$str;
+                echo "<td>$str</td>";
+            }
+        }
+        // Closing tag for row
            echo '</tr>';
         }
 
@@ -470,8 +479,18 @@
                 // Uses name of heading to get value out of the current row in the heatmap table
                 // E.G. AGENB1 is a heading, use AGENB1 to get out the value of AGENB1 in the current tuple of the heatmap table
                 $str = $obj[$obj2['Head']];
-                // Add value as row entry
-                echo "<td>$str</td>";
+                // Add value as row entry\
+                if (is_numeric( $str )) {
+                    $val = (float)$str;
+                    round($val,2);
+                    $val = "$".$val;
+                    echo "<td>$val</td>";
+                    // $str = "$".$str;
+                    // rtrim($str, "0");
+                } else {
+                // $str = "$".$str;
+                    echo "<td>$str</td>";
+                }
             }
             // Closing tag for row
             echo '</tr>';
