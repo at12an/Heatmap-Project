@@ -16,13 +16,13 @@
         /*Body refers to the whole page*/
         /*Set background color*/
         body {
-            background-color: #F6F1F1;
+            background-color: #DFE8F1;
         }
 
         /*Font styling for the headers e.g. color, size, margins, allignment */
         h1, h2 {
             font-family: Montserrat, sans-serif;
-            color: #146C94;
+            color: #000080;
             text-align: center;
             margin:0;
         }
@@ -53,14 +53,16 @@
         /*More font styling*/
         .title {
             font-weight: bold;
-            color: #146C94;
+            color: #000080;
         }
         table {
-            background-color: #AFD3E2;
+            background-color: #8EABC9;
             text-align: center;
             font-family: 'Roboto Mono', monospace;
-        width: 100%;
-        border-collapse: collapse;
+            width: 100%;
+            border-collapse: collapse;
+            color: black;
+            font-size: 14px;
         }
 
         th,
@@ -69,16 +71,25 @@
             font-family: 'Roboto Mono', monospace;
             padding: 8px;
             border-bottom: 1px solid #ddd;
+            border: 1px solid white;
+  padding: 8px;
         }
 
         th {
-            background-color: #146C94;
+            background-color: #000080;
             font-weight: bold;
+            color:white;
         }
 
         tr:nth-child(even) {
             /* background-color: #f9f9f9; */
         }
+
+        tr {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
         tr:hover {
             background-color: #f5f5f5;
