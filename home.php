@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.php" media="screen">
+    <!-- link rel="stylesheet" href="style.php" media="screen"> -->
     <!--Title of tabr-->
     <title>Insurance Infographic</title>
     <!--Styling go more in depth on data.php-->
@@ -88,6 +88,7 @@
       $(function() {
         $('#heatmap').change(function() {
           var heatmaps = $('#heatmap').val();
+          sessionStorage.clear();
           sessionStorage.setItem("heatmap", heatmaps);
           var url = 'home.php';
           var form = $('<form action="' + url + '" method="post">' +
@@ -97,10 +98,67 @@
           form.submit();
         });
       });
+ 
+      $(function() {
+        $('#TYPE').change(function() {
+          event.preventDefault(); // Prevent the default form submission
+          var heatmaps = $('#heatmap').val();
+          sessionStorage.setItem("heatmap", heatmaps);
+          var url = 'home.php';
+          var selects = document.getElementsByTagName("select");
+          var formstr = '<form action="' + url + '" method="post">'+'<input type="hidden" name="heatmap" value=' + heatmaps + ' />';
+          
+          for (var i = 0; i < selects.length; i++) {
+            var select = selects[i];
+            var selectedOption = select.options[select.selectedIndex];
+            var selectName = select.name || select.id; // Use name attribute if available, otherwise fallback to id attribute
+            console.log(select.id + selectedOption.value)
+            sessionStorage.setItem(select.id, selectedOption.value);
+            formstr = formstr + '<input type="hidden" name=' + select.id + ' value=' + selectedOption.value + ' />';
+          }
+          var url = 'home.php';
+          formstr = formstr + '</form>';
+          form = $(formstr);
+          $('body').append(form);
+          form.submit();
+        });
+      });
+
+      // document.getElementById("form1").addEventListener("submit", function(event) {
+      //   event.preventDefault(); // Prevent the default form submission
+
+      //   var selects = document.getElementsByTagName("select");
+      //   var selectedValues = {};
+
+      //   for (var i = 0; i < selects.length; i++) {
+      //     var select = selects[i];
+      //     var selectedOption = select.options[select.selectedIndex];
+      //     var selectName = select.name || select.id; // Use name attribute if available, otherwise fallback to id attribute
+      //     selectedValues[selectName] = selectedOption.value;
+      //     sessionStorage.setItem(select.id, selectedOption.value);
+      //   }
+        
+
+      //   // Display the selected values
+      //   // console.log(selectedValues);
+
+      //   // You can send the selected values to the server or perform any other operations here
+      // });
+
+      
       window.onload = function() {
-        var heatmaps = sessionStorage.getItem("heatmap");
-        $('#heatmap').val(heatmaps).change; 
-        $('#sort-item').val(selItem);
+        // var heatmaps = sessionStorage.getItem("heatmap");
+        // $('#heatmap').val(heatmaps).change; 
+        // console.log(heatmaps);
+        for (var i = 0; i < sessionStorage.length; i++) {
+          var key = sessionStorage.key(i);
+          if (!key.includes("basecompany")) {
+            var value = sessionStorage.getItem(key);
+            console.log("Key: " + key + ", Value: " + value);
+            var heatmaps = sessionStorage.getItem(key);
+            $("#"+key).val(value).change;
+          }
+        }
       }
       </script>
     <!--Titles / headings-->
@@ -164,7 +222,10 @@
               echo "Connection could not be established.<br />";
               die( print_r( sqlsrv_errors(), true));
           }
-
+          foreach ($_POST as $key => $value) {
+            // Process each posted value here
+            // echo "Key: " . $key . ", Value: " . $value . "<br>";
+          }
           // Initialise info to organise respective filters for a given heatmap
           // Check if heatmap is selected
           if (isset($_POST['heatmap'])) {
@@ -236,40 +297,23 @@
               echo'</select><br>';
           }
 
-          // Dropdown select for all companies + discount combinations
-          // $query2 = "select * from dbo.data_company";
-          // $stmt2 = sqlsrv_query($conn, $query2);
-
-          // if ($stmt2 == false) {
-          //   echo "stmt2 false";
-          // }
-
           // Dropdown select for base company + discount
-          echo "<label for='basecompany'>Select Base Company: </label>";
-          echo "<select name='basecompany' id='basecompany'>";
-
-          // Company + Discount dropdown select
-          // Iterate over all the companies
-          // while ($obj = sqlsrv_fetch_array($stmt2, SQLSRV_FETCH_ASSOC)) {
-          //     // Iterate over each discount corresponding to each company
-          //     // echo "<option>1</option";
-          //     $company = $obj['Company_id'];
-          //     // Query to get all discounts out
-
-
-              // $query3 = "select * from dbo.data_products where Company_id = $bcompany";
-              // $stmt3 = sqlsrv_query($conn, $query3);
-              // if ($stmt3 == false) {
-              //   echo "stmt3 false";
-              // }
-              // // Get out Company Display name
-              // $companydisp = $obj['CompanyDisp'];
-
-              $query4 = "select distinct company_id, Product_id from dbo.$heatmap order by company_id";
+          $query4 = "select distinct company_id, Product_id from dbo.$heatmap where";
+              foreach ($_POST as $key => $value) {
+                // Process each posted value here
+                if (!str_contains($key, "heatmap") && !str_contains($key, "basecompany") ) {
+                  $query4 = $query4." $key = '$value' and";
+                }
+              }
+              $query4 = substr($query4, 0, -3);
+              $query4 = $query4." order by company_id";
+              // echo $query4;
               $stmt4 = sqlsrv_query($conn, $query4);
               if ($stmt4 == false) {
-                echo "stmt4 false";
+                echo "<br>stmt4 false";
               }
+              echo "<label for='basecompany'>Select Base Company: </label>";
+              echo "<select name='basecompany' id='basecompany'>";
               while ($obj4 = sqlsrv_fetch_array($stmt4, SQLSRV_FETCH_ASSOC)) {
                 $prod_id = $obj4['Product_id'];
                 $bcompany = $obj4['company_id'];
@@ -292,26 +336,6 @@
                 
               }
 
-              // // Add combination of company + discount as dropdown option select
-              // while ($obj2 = sqlsrv_fetch_array($stmt3, SQLSRV_FETCH_ASSOC)) {
-              //   // // Go through each V_n for discount
-              //   // for ($i = 0; true; $i++) {
-              //   //   $str = 'V_'.$i;
-              //   //   if (!isset($obj2[$str])) {
-              //   //       break;
-              //   //   }
-              //   //   if ($obj2[$str] != null) {
-              //   //       $disc = $obj2[$str];
-              //   //       // Add discount + company name as option to dropdown select
-              //   //       echo "<option value='$company,$i'>$companydisp $disc</option>";
-              //   //   }
-              //   // }
-              //   // echo "<option>1</option";
-              //   $prod = $obj2['Product_Disp'];
-              //   $prod_id = $obj2['Product_id'];
-              //   echo "<option value='$company,$prod_id'>$companydisp $prod</option>";
-              // }
-          // }
           // Closing tag
           echo "</select>";
           
@@ -323,6 +347,8 @@
           sqlsrv_close($conn);
           
         ?>
+
+        
 
       <br>
 
