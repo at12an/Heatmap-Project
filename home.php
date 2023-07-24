@@ -61,21 +61,7 @@
         cursor: pointer;
         margin-top: 4vh;
       }
-      /* Styling for the buttons */
-button {
-  padding: 10px 20px;
-  font-size: 16px;
-  background-color: #007BFF; /* Change to your desired background color */
-  color: #fff; /* Change to your desired text color */
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-/* Styling when the button is hovered */
-button:hover {
-  background-color: #0056b3; /* Change to a darker shade for hover effect */
-}
+      
 
     </style>
 
