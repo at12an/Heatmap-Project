@@ -16,154 +16,143 @@
         /*Body refers to the whole page*/
         /*Set background color*/
         body {
-            background-color: #DFE8F1;
-        }
-
-        /*Font styling for the headers e.g. color, size, margins, allignment */
-        h1, h2 {
             font-family: Montserrat, sans-serif;
-            color: #000080;
-            text-align: center;
-            margin:0;
-        }
-
-        /*More font styling*/
-        h1 {
-            padding-top: 1vh;
-            font-size: 4vw;
-            font-weight:800;
-            margin-bottom: 3vh;
+            color: #112D4E;
+            margin: 20px;
+            background-color: #F9F7F7;
+            color: #1B262C;
         }
         
-        /*More font styling*/
-        h2 {
-            font-size: 3.5vw;
-            font-weight:600;
-            margin-bottom: 5vh;
+        h1 {
+            text-align: center;
+            color: #112D4E;
+            font-size: 2vw;
         }
-
-        /*More font styling*/
-        pre {
-            font-family: 'Roboto Mono', monospace;
-            font-variant-numeric: tabular-nums;
-            font-weight: 300;
-            font-size: 1vw;
-        }
-
-        /*More font styling*/
-        .title {
-            font-weight: bold;
-            color: #000080;
-        }
+        
         table {
-            background-color: #8EABC9;
-            text-align: center;
-            font-family: 'Roboto Mono', monospace;
-            width: 100%;
             border-collapse: collapse;
-            color: black;
-            font-size: 14px;
+            width: 100%;
+            margin-top: 20px;
         }
-
-        th,
-        td {
-            text-align: center;
-            font-family: 'Roboto Mono', monospace;
-            padding: 8px;
-            border-bottom: 1px solid #ddd;
-            border: 1px solid white;
-  padding: 8px;
-        }
-
-        th {
-            background-color: #000080;
-            font-weight: bold;
-            color:white;
-        }
-
-        tr:nth-child(even) {
-            /* background-color: #f9f9f9; */
-        }
-
         tr {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  display: table-row;
 }
-
-        tr:hover {
-            background-color: #f5f5f5;
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: center;
+            padding: 8px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 0.8vw;
         }
+        
+        th {
+            background-color: #f2f2f2;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        
+        input[type="checkbox"] {
+            margin: 0;
+        }
+        
+        label {
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Styling for the buttons */
+        button {
+            text-align: center;
+            margin-top: 2vh;
+            padding: 0.5vw 0.5vw;
+            font-size: 0.9vw;
+            background-color: #3F72AF; /* Change to your desired background color */
+            color: #fff; /* Change to your desired text color */
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* Styling when the button is hovered */
+        button:hover {
+            background-color: #112D4E; /* Change to a darker shade for hover effect */
+        }
+
     </style>
     <!--Title of the tab -->
-    <title>SQL TEST</title>
+    <title>Heatmap</title>
     <!--This whole script section just handles the excel download, no need to use this for now-->
     <script type="text/javascript">
-        function exportTableToExcel(tableID, filename = ''){
-        var downloadLink;
-        var dataType = 'application/vnd.ms-excel';
-        var tableSelect = document.getElementById(tableID);
-        var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
-    
-        // Specify file name
-        filename = filename?filename+'.xls':'excel_data.xls';
+        function exportTableToExcel(tableID, filename = '') {
+            var downloadLink;
+            var dataType = 'application/vnd.ms-excel';
+            var tableSelect = document.getElementById(tableID);
+            var tableHTML = tableSelect.outerHTML.replace(/ /g, '%20');
         
-        // Create download link element
-        downloadLink = document.createElement("a");
-        
-        document.body.appendChild(downloadLink);
-    
-        if (navigator.msSaveOrOpenBlob) {
-            var blob = new Blob(['\ufeff', tableHTML], {
-                type: dataType
-            });
-            navigator.msSaveOrOpenBlob( blob, filename);
-        } else {
-            // Create a link to the file
-            downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
-        
-            // Setting the file name
-            downloadLink.download = filename;
+            // Specify file name
+            filename = filename?filename+'.xls':'excel_data.xls';
             
-            //triggering the function
-            downloadLink.click();
+            // Create download link element
+            downloadLink = document.createElement("a");
+            
+            document.body.appendChild(downloadLink);
+        
+            if (navigator.msSaveOrOpenBlob) {
+                var blob = new Blob(['\ufeff', tableHTML], {
+                    type: dataType
+                });
+                navigator.msSaveOrOpenBlob( blob, filename);
+            } else {
+                // Create a link to the file
+                downloadLink.href = 'data:' + dataType + ', ' + tableHTML;
+            
+                // Setting the file name
+                downloadLink.download = filename;
+                
+                //triggering the function
+                downloadLink.click();
+            }
         }
-    }
-    function copyTableData() {
-    var table = document.getElementById('tabledata');
-    var range = document.createRange();
-    var selectedCells = [];
 
-    // Iterate through each row of the table
-    for (var i = 0; i < table.rows.length; i++) {
-        var row = table.rows[i];
-        var cells = row.cells;
+        function copyTableData() {
+            var table = document.getElementById('tabledata');
+            var range = document.createRange();
+            var selectedCells = [];
 
-        // Iterate through the cells starting from the 3rd column
-        for (var j = 3; j < cells.length; j++) {
-        selectedCells.push(cells[j].innerText);
+            // Iterate through each row of the table
+            for (var i = 0; i < table.rows.length; i++) {
+                var row = table.rows[i];
+                var cells = row.cells;
+
+                // Iterate through the cells starting from the 3rd column
+                for (var j = 3; j < cells.length; j++) {
+                selectedCells.push(cells[j].innerText);
+                }
+            }
+
+            // Create a temporary textarea to hold the selected data
+            var tempTextarea = document.createElement('textarea');
+            tempTextarea.value = selectedCells.join('\t');
+            document.body.appendChild(tempTextarea);
+
+            // Copy the text from the textarea to the clipboard
+            tempTextarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextarea);
+
+            alert('Table data copied to clipboard!');
         }
-    }
-
-    // Create a temporary textarea to hold the selected data
-    var tempTextarea = document.createElement('textarea');
-    tempTextarea.value = selectedCells.join('\t');
-    document.body.appendChild(tempTextarea);
-
-    // Copy the text from the textarea to the clipboard
-    tempTextarea.select();
-    document.execCommand('copy');
-    document.body.removeChild(tempTextarea);
-
-    alert('Table data copied to clipboard!');
-}
     </script>
     </head>
 
 
     <body>
     <!--Title / Header-->
-    <h1>Insurance Infographic</h1>
+    <h1>Heatmap Table</h1>
     <!--This is a PHP section-->
     <!--I use this to take POST values and send POST values-->
     <!--It is also able to create its own html elements-->
@@ -179,10 +168,11 @@
             die(print_r( sqlsrv_errors(), true));
         }
 
+        $heatmap = $_POST['heatmap'];
+
+
         // Get POST values from the form -> Gets out the month and heatmap selected from the form
         $datetime = $_POST['month'];
-        $heatmap = $_POST['heatmap'];
-        // echo $heatmap;
 
         // Using these POST values to create the base query
         // This query selects the heatmap table for the given date time
@@ -190,8 +180,7 @@
 
         // Query2 to get all the filters out and then add to base query
         $query2 = "select Filters from dbo.heatmap_filters where HeatMap = '".$heatmap."' order by LevelDisp, LevelOrd ASC";
-        // echo $query2;
-        // echo "<br>";
+
         $stmt2 = sqlsrv_query($conn, $query2);
         if ($stmt2 == false) {
             echo "stmt0 false";
@@ -209,11 +198,9 @@
 
         // Get POSTED value
         // Specifically it gets the base company + discount selected
-        $bcompany = $_POST['basecompany'][0];
-        $bdisc = $_POST['basecompany'][2];
-        if ($bdisc == ",") {
-            $bdisc = $_POST['basecompany'][3];  
-        }
+        $array = explode(',',$_POST['basecompany']);
+        $bcompany = $array[0];
+        $bdisc = $array[1];
 
         // Queryalt is the query but specifically only for the base company + discount
         $queryalt = $query." and company_id = $bcompany and Product_id = $bdisc";
@@ -287,7 +274,6 @@
            $tempquery = "select distinct CompanyDisp from dbo.data_company where Company_id = $company";
            // Run the query
            $tempstmt = sqlsrv_query($conn, $tempquery);
-           // echo $tempquery;
            // Error check
            if ($tempstmt == false) {
                echo "tempstmt6 false";
@@ -314,12 +300,6 @@
                // Gets heading of the current row
                $heading = $obj2['Head'];
                // Query to get the out values that will correspond to V_n for each heading
-               // $tempquery2 = "select * from dbo.data_products where Company_id = $company and product";
-               // Run query
-               // $tempstmt2 = sqlsrv_query($conn, $tempquery2);
-               // if ($tempstmt2 == false) {
-               //     echo "tempstmt2 false";
-               // }
                if (str_contains($heading, "companysub_id")) {
                    $tempquery2 = "select * from dbo.data_CompanySub where Company_id = $company and CompanySub_id = $sub_id";
                    $tempstmt2 = sqlsrv_query($conn, $tempquery2);
@@ -340,22 +320,6 @@
                    $str = $tempobjp['Product_Disp'];
                    echo "<td>$str</td>";
                }
-               // Take from current row of heatmap table the value of heading e.g. value of sex in the current row is 1
-               // So V_1 string is created
-               // $tempindex = "V_".$obj[$heading];
-               // // Query to convert the column value
-               // // Using the V_n made, it will take the V_n column for the associated heading
-               // // E.g V_1 of sex (heading) will be male
-               // $tempobj = sqlsrv_fetch_array($tempstmt2, SQLSRV_FETCH_ASSOC);
-               // if ($tempobj != null) {
-               //     // If tempobj exists add to string
-               //     $str = $tempobj[$tempindex];
-               // } else {
-               //     // Else leave string as empty
-               //     $str = '';
-               // }
-               // // Add string as row entry
-               // echo "<td>$str</td>";
            }
            // Query to get all the column values that dont need conversion (mostly AGENB) and then display them
            $tempquery = "select Head from dbo.data_OutputDisp where ConvertData = 0 and Head != '$fill' and $heatmap = 1 order by DispOrder asc";
@@ -367,25 +331,21 @@
                echo "tempstmt9 false";
            }
 
-          // For loop goes through each row out OutputDisp and gets name of heading
-          while ($obj2 = sqlsrv_fetch_array($tempstmt, SQLSRV_FETCH_ASSOC)) {
-            // Uses name of heading to get value out of the current row in the heatmap table
-            // E.G. AGENB1 is a heading, use AGENB1 to get out the value of AGENB1 in the current tuple of the heatmap table
-            $str = $obj[$obj2['Head']];
-            // Add value as row entry\
-            if (is_numeric( $str )) {
-                $val = (float)$str;
-                round($val,2);
-                $val = "$".$val;
-                echo "<td>$val</td>";
-                // $str = "$".$str;
-                // rtrim($str, "0");
-            } else {
-            // $str = "$".$str;
-                echo "<td>$str</td>";
-            }
-        }
-        // Closing tag for row
+           // For loop goes through each row out OutputDisp and gets name of heading
+           while ($obj2 = sqlsrv_fetch_array($tempstmt, SQLSRV_FETCH_ASSOC)) {
+               // Uses name of heading to get value out of the current row in the heatmap table
+               // E.G. AGENB1 is a heading, use AGENB1 to get out the value of AGENB1 in the current tuple of the heatmap table
+               $str = $obj[$obj2['Head']];
+               // Add value as row entry\
+               if (is_numeric( $str ) && $obj2['Head'] != "OCCUSED") {
+                   $format_number = number_format((float)$str, 2, '.', '');
+                   $format_number = "$".$format_number;
+                   echo "<td>$format_number</td>";
+               } else {
+                   echo "<td>$str</td>";
+               }
+           }
+           // Closing tag for row
            echo '</tr>';
         }
 
@@ -433,11 +393,6 @@
                 $heading = $obj2['Head'];
                 // Query to get the out values that will correspond to V_n for each heading
                 // $tempquery2 = "select * from dbo.data_products where Company_id = $company and product";
-                // Run query
-                // $tempstmt2 = sqlsrv_query($conn, $tempquery2);
-                // if ($tempstmt2 == false) {
-                //     echo "tempstmt2 false";
-                // }
                 if (str_contains($heading, "companysub_id")) {
                     $tempquery2 = "select * from dbo.data_CompanySub where Company_id = $company and CompanySub_id = $sub_id";
                     $tempstmt2 = sqlsrv_query($conn, $tempquery2);
@@ -458,22 +413,6 @@
                     $str = $tempobjp['Product_Disp'];
                     echo "<td>$str</td>";
                 }
-                // Take from current row of heatmap table the value of heading e.g. value of sex in the current row is 1
-                // So V_1 string is created
-                // $tempindex = "V_".$obj[$heading];
-                // // Query to convert the column value
-                // // Using the V_n made, it will take the V_n column for the associated heading
-                // // E.g V_1 of sex (heading) will be male
-                // $tempobj = sqlsrv_fetch_array($tempstmt2, SQLSRV_FETCH_ASSOC);
-                // if ($tempobj != null) {
-                //     // If tempobj exists add to string
-                //     $str = $tempobj[$tempindex];
-                // } else {
-                //     // Else leave string as empty
-                //     $str = '';
-                // }
-                // // Add string as row entry
-                // echo "<td>$str</td>";
             }
             // Query to get all the column values that dont need conversion (mostly AGENB) and then display them
             $tempquery = "select Head from dbo.data_OutputDisp where ConvertData = 0 and Head != '$fill' and $heatmap = 1 order by DispOrder asc";
@@ -491,15 +430,11 @@
                 // E.G. AGENB1 is a heading, use AGENB1 to get out the value of AGENB1 in the current tuple of the heatmap table
                 $str = $obj[$obj2['Head']];
                 // Add value as row entry\
-                if (is_numeric( $str )) {
-                    $val = (float)$str;
-                    round($val,2);
-                    $val = "$".$val;
-                    echo "<td>$val</td>";
-                    // $str = "$".$str;
-                    // rtrim($str, "0");
+                if (is_numeric( $str ) && $obj2['Head'] != "OCCUSED") {
+                    $format_number = number_format((float)$str, 2, '.', '');
+                    $format_number = "$".$format_number;
+                    echo "<td>$format_number</td>";
                 } else {
-                // $str = "$".$str;
                     echo "<td>$str</td>";
                 }
             }
@@ -509,8 +444,9 @@
         // Closing tag for table
         echo '</table';
         // Free memory stuff
+
         sqlsrv_free_stmt($tempstmt);
-        sqlsrv_free_stmt($tempstmt2);
+        // sqlsrv_free_stmt($tempstmt2);
         sqlsrv_free_stmt($stmt);
         sqlsrv_free_stmt($stmt2);
         sqlsrv_close($conn);
